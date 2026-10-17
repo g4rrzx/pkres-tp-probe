@@ -1,0 +1,34 @@
+name: OIDC Exchange Probe
+on:
+  workflow_dispatch:
+    inputs:
+      target_org:
+        description: org url name
+        default: pkresearchlab
+      target_pkg:
+        description: package name to request credential for
+        default: g4rrzx/probe-pkg
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get audience
+        run: |
+          ORG="${{ github.event.inputs.target_org }}"
+          PKG="${{ github.event.inputs.target_pkg }}"
+          AUD=$(curl -sS "https://packagist.com/api/oidc/audience/$ORG" | jq -r .audience)
+          echo "audience=$AUD"
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$AUD" | jq -r .value)
+          echo "$TOKEN" > /tmp/oidc.jwt
+          echo "=== exchange attempt: $ORG / $PKG ==="
+          curl -sS -X POST -w '\n[HTTP %{http_code}]\n' \
+            -H "Authorization: Bearer $TOKEN" \
+            "https://packagist.com/api/oidc/token-exchange/$ORG/$PKG" | tee /tmp/resp.json
+          echo "=== reuse same token a second time ==="
+          curl -sS -X POST -w '\n[HTTP %{http_code}]\n' \
+            -H "Authorization: Bearer $TOKEN" \
+            "https://packagist.com/api/oidc/token-exchange/$ORG/$PKG"
