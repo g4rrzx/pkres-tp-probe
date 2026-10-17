@@ -53,3 +53,12 @@ for fn, pkg in [('probe-pkg.zip','pkresearchlab/tp-probe'),
         except Exception: continue
         st2, b2 = call('POST','/api/packages/', data={'repoType':'artifact','artifactIds':[aid]})
         print(f'  createArtifactPackage({aid}) -> [{st2}] {b2[:250]}')
+
+print('=== POSITIVE CONTROL: publish the BOUND package pkresearchlab/tp-probe ===')
+body = open('art/tp-probe.zip','rb').read()
+st, b = call('POST','/api/packages/artifacts/', body_bytes=body, ctype='application/zip', extra={'X-FILENAME':'tp-probe.zip'})
+print(f'upload tp-probe.zip [{st}] {b[:200]}')
+if st == 201:
+    aid = json.loads(b)['id']
+    st2, b2 = call('POST','/api/packages/', data={'repoType':'artifact','artifactIds':[aid]})
+    print(f'createArtifactPackage({aid}) -> [{st2}] {b2[:400]}')
