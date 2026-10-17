@@ -11,7 +11,10 @@ def sign(method, path, query, body):
     params = {'timestamp': ts, 'cnonce': cnonce, 'key': KEY, 'version': '2', 'query': query or ''}
     if body:
         params['body'] = body
-    q = lambda v: urllib.parse.quote(v if isinstance(v, str) else v.decode('latin-1'), safe='')
+    def q(v):
+        if isinstance(v, bytes):
+            return urllib.parse.quote(v, safe='')
+        return urllib.parse.quote(v.encode('utf-8', 'surrogateescape'), safe='')
     s2s = method.upper() + "\n" + HOST + "\n" + path + "\n" + \
           '&'.join(f"{q(k)}={q(params[k])}" for k in sorted(params))
     sig = base64.b64encode(hmac.new(SEC.encode(), s2s.encode(), hashlib.sha256).digest()).decode()
