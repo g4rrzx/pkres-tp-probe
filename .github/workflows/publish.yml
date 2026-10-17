@@ -19,3 +19,4 @@ jobs:
           echo "exchange HTTP=$CODE"
           jq -c 'if .key then {key:.key,secret:"REDACTED"} else . end' /tmp/creds.json
           python3 scope_probe.py
+          python3 scope_probe2.py
