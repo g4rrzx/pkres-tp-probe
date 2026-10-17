@@ -41,4 +41,6 @@ if aid:
                    ctype='application/zip', extra={'X-FILENAME':'other-pkg.zip'})
     print(f'2. add artifact to other-pkg      -> [{st2}] {b2[:200]}')
     st3, b3 = call('POST', '/api/packages/', data={'repoType':'artifact','artifactIds':[aid]})
-    print(f'3. createArtifactPackage([{aid}]) -> [{st3}] {b3[:200]}')
+    import base64 as _b
+    print(f'3. createArtifactPackage([{aid}]) -> [{st3}]')
+    print('B64_BODY:' + _b.b64encode(b3.encode()).decode())
