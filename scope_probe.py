@@ -47,3 +47,17 @@ probes = [
 for label, m, p in probes:
     st, body = call(m, p)
     print(f'{label:44s} -> [{st}] {body[:110]}')
+
+print('=== POSITIVE CONTROL: can this credential publish at all? ===')
+def upload(zipname, pkgname):
+    body = open('art/' + zipname, 'rb').read()
+    return call('POST', '/api/packages/artifacts/', body_bytes=body,
+                ctype='application/zip', extra={'X-FILENAME': zipname})
+
+for label, z, p in [
+    ('upload artifact for BOUND package g4rrzx/probe-pkg', 'probe-pkg.zip', 'g4rrzx/probe-pkg'),
+    ('upload artifact for UNBOUND package pkresearchlab/other-pkg', 'other-pkg.zip', 'pkresearchlab/other-pkg'),
+    ('upload artifact for UNBOUND package g4rrzx/not-bound', 'not-bound.zip', 'g4rrzx/not-bound'),
+]:
+    st, body = upload(z, p)
+    print(f'{label:56s} -> [{st}] {body[:150]}')
