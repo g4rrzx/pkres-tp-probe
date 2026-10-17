@@ -1,0 +1,18 @@
+name: Publish Artifact
+on:
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dump OIDC token claims (probe, does NOT exchange)
+        run: |
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=packagist" | jq -r .value)
+          echo "--- raw JWT claims ---"
+          echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
