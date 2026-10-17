@@ -23,8 +23,8 @@ def call(method, path, data=None, body_bytes=None, ctype='application/json', ext
     hdr['Authorization'] = sign(method, path, '', body)
     req = urllib.request.Request('https://'+HOST+path, data=body, headers=hdr, method=method)
     try:
-        r = urllib.request.urlopen(req, timeout=45); return r.status, r.read().decode('utf-8','replace')[:400]
-    except urllib.error.HTTPError as e: return e.code, e.read().decode('utf-8','replace')[:400]
+        r = urllib.request.urlopen(req, timeout=45); return r.status, r.read().decode('utf-8','replace')[:1200]
+    except urllib.error.HTTPError as e: return e.code, e.read().decode('utf-8','replace')[:1200]
     except Exception as e: return 0, repr(e)[:200]
 
 print('=== FULL PUBLISH FLOW against UNBOUND package pkresearchlab/other-pkg ===')
